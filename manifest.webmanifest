@@ -1,0 +1,19 @@
+{
+  "name": "蒼穹戰翼",
+  "short_name": "蒼穹戰翼",
+  "description": "直向飛機射擊遊戲：五關五魔王、三種可升級武器、四種炸彈。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#0a0f24",
+  "theme_color": "#0a0f24",
+  "categories": ["games"],
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

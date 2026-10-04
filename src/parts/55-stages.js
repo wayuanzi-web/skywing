@@ -1,0 +1,85 @@
+/* ================= stage scripts: [seconds to wait, wave] ================= */
+const WAVES=[
+/* 1 海岸防線: grunts, weavers, first gunships */
+[
+  [1.6,()=>F.col('grunt',5,90)],
+  [2.2,()=>F.col('grunt',5,270)],
+  [2.2,()=>{F.vee('grunt',5,180);F.car(1)}],
+  [3,()=>F.col('weaver',5,120,.4)],
+  [2.5,()=>F.col('weaver',5,240,.4)],
+  [2.8,()=>F.row('grunt',5)],
+  [2.5,()=>{F.one('gunship',180);F.car(-1)}],
+  [4,()=>{F.col('grunt',4,60);F.col('grunt',4,300)}],
+  [3,()=>F.rain('diver',4,.6)],
+  [3,()=>{F.vee('weaver',5,180);F.car(1)}],
+  [3.2,()=>{F.one('gunship',100,{y1:130});F.one('gunship',260,{y1:130})}],
+  [4.5,()=>{F.row('grunt',6);F.rain('diver',3,.7)}],
+  [3.5,()=>{F.one('bomber',180,{item:'B'});F.car(-1)}],
+  [6,()=>F.rain('grunt',8,.3)]
+],
+/* 2 沙漠風暴: side sweepers, mines */
+[
+  [1.6,()=>F.side('sweeper',4,-1,100)],
+  [2.4,()=>F.side('sweeper',4,1,100)],
+  [2.4,()=>{F.vee('grunt',7,180);F.car(1)}],
+  [3,()=>F.rain('mine',6,.5)],
+  [3,()=>{F.col('weaver',5,90,.35);F.col('weaver',5,270,.35)}],
+  [3.2,()=>{F.one('gunship',180,{y1:150});F.side('sweeper',3,-1,160)}],
+  [3.5,()=>{F.rain('diver',5,.5);F.car(-1)}],
+  [3.2,()=>F.cross('grunt',5)],
+  [3.2,()=>{F.one('gunship',90);F.one('gunship',270);F.rain('mine',4,.6)}],
+  [4.5,()=>{F.side('sweeper',5,1,90);F.side('sweeper',5,-1,170);F.car(1)}],
+  [4,()=>F.one('bomber',120,{item:'P'})],
+  [3,()=>F.one('bomber',240)],
+  [5,()=>{F.row('weaver',6);F.rain('diver',4,.6);F.car(-1)}],
+  [4.5,()=>F.rain('grunt',10,.25)]
+],
+/* 3 雷雲亂流: spinners, heavier mines */
+[
+  [1.6,()=>{F.one('spinner',110);F.one('spinner',250)}],
+  [3.4,()=>{F.vee('weaver',7,180);F.car(1)}],
+  [3,()=>F.rain('diver',6,.45)],
+  [3,()=>{F.rain('mine',7,.4);F.side('sweeper',4,-1,110)}],
+  [3.6,()=>{F.one('gunship',180,{y1:120});F.col('grunt',5,60);F.col('grunt',5,300)}],
+  [4,()=>{F.one('spinner',180,{y1:170});F.side('sweeper',4,1,100);F.car(-1)}],
+  [4,()=>F.cross('weaver',5)],
+  [3.2,()=>{F.one('bomber',180,{item:'B'});F.rain('diver',4,.7)}],
+  [5.5,()=>{F.one('spinner',80,{y1:130});F.one('spinner',280,{y1:130});F.car(1)}],
+  [4,()=>{F.one('gunship',100);F.one('gunship',260);F.rain('mine',5,.5)}],
+  [4.5,()=>{F.row('grunt',7);F.side('sweeper',5,-1,150)}],
+  [3.5,()=>{F.one('bomber',110);F.one('bomber',250,{item:'P'});F.car(-1)}],
+  [7,()=>F.rain('diver',8,.3)]
+],
+/* 4 熔岩要塞: aces, paired bombers */
+[
+  [1.6,()=>F.rain('ace',3,.6)],
+  [3,()=>{F.side('sweeper',5,-1,100);F.side('sweeper',5,1,160);F.car(1)}],
+  [3.6,()=>{F.one('spinner',180,{y1:140});F.rain('diver',5,.5)}],
+  [3.6,()=>{F.one('gunship',70);F.one('gunship',180,{y1:170});F.one('gunship',290)}],
+  [4.5,()=>{F.rain('ace',4,.5);F.car(-1)}],
+  [3.6,()=>{F.rain('mine',8,.35);F.cross('grunt',5)}],
+  [4,()=>{F.one('bomber',180,{item:'B'});F.one('spinner',70,{y1:190});F.one('spinner',290,{y1:190})}],
+  [6,()=>{F.vee('weaver',7,180);F.rain('ace',3,.7);F.car(1)}],
+  [4,()=>{F.one('bomber',100);F.one('bomber',260,{item:'P'})}],
+  [5.5,()=>{F.rain('diver',8,.35);F.side('sweeper',4,1,120)}],
+  [3.6,()=>{F.one('gunship',120);F.one('gunship',240);F.rain('ace',3,.6);F.car(-1)}],
+  [5,()=>{F.row('grunt',7);F.rain('mine',6,.4)}],
+  [4,()=>F.rain('ace',6,.4)]
+],
+/* 5 大氣層外: everything at once */
+[
+  [1.6,()=>{F.rain('ace',4,.5);F.car(1)}],
+  [3,()=>{F.one('spinner',90);F.one('spinner',270);F.rain('diver',5,.5)}],
+  [4,()=>{F.cross('weaver',6);F.side('sweeper',5,-1,130)}],
+  [3.6,()=>{F.one('bomber',180,{item:'B'});F.rain('ace',3,.7);F.car(-1)}],
+  [5.5,()=>{F.rain('mine',9,.3);F.one('gunship',100);F.one('gunship',260)}],
+  [4.2,()=>{F.side('sweeper',6,1,90);F.side('sweeper',6,-1,180);F.rain('diver',5,.5)}],
+  [4,()=>{F.one('spinner',180,{y1:120});F.one('spinner',70,{y1:200});F.one('spinner',290,{y1:200});F.car(1)}],
+  [5,()=>{F.one('bomber',100,{item:'P'});F.one('bomber',260);F.rain('ace',4,.6)}],
+  [6,()=>{F.row('grunt',8);F.vee('weaver',7,180);F.car(-1)}],
+  [3.6,()=>{F.rain('ace',6,.4);F.rain('mine',6,.5)}],
+  [4.5,()=>{F.one('gunship',70);F.one('gunship',180,{y1:180});F.one('gunship',290);F.rain('diver',6,.4)}],
+  [5,()=>{F.one('bomber',180,{item:'S'});F.one('spinner',80);F.one('spinner',280);F.car(1)}],
+  [6.5,()=>F.rain('diver',10,.25)]
+]
+];

@@ -1,0 +1,6 @@
+/* web-app extras: share + install controls on the title screen */
+.appbar{position:absolute;top:12px;left:16px;right:16px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.appbar button{height:36px;padding:0 14px;border:1px solid var(--line);border-radius:18px;background:var(--shade);font-weight:900;font-size:13px;letter-spacing:.06em}
+.appbar #btnInstall{border-color:var(--brass);color:var(--brass)}
+.appbar p{flex:1 0 100%;margin:0;padding:8px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);font-size:13px;line-height:1.5;
+  -webkit-user-select:text;user-select:text;overflow-wrap:anywhere}
