@@ -34,4 +34,6 @@ git add -A && git commit -m "..." && git push
 
 GitHub Pages 從 `main` 分支根目錄發布，推上去約一分鐘後生效。每次建置會換一個離線快取名稱，玩家下次連線開啟就會拿到新版。
 
+`sw.js` 換版時只清自己的舊快取（名稱以 `skywing-` 開頭）。同帳號的 GitHub Pages 網站（`wayuanzi-web.github.io/…`）共用同一個網域的快取空間，不能動到別的網站的。
+
 主要調整參數都在 `src/parts/` 前段：`DIFF`（難度倍率）、`BDEF`（魔王血量）、`ED`（敵機血量與分數）、`WAVES`（各關波次）、`fire()`（武器火力）。
