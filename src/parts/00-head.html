@@ -84,6 +84,19 @@ h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:32px;letter-s
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
 .seg button{height:40px;border:1px solid var(--line);background:var(--panel);border-radius:3px;font-weight:900;font-size:14px;padding:0 4px}
 .seg button[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--ink)}
+#segStage{grid-auto-flow:row;grid-template-columns:repeat(5,1fr)}
+#segStage button:nth-child(n+6){border-color:#4a3f78}
+.opt .lbl small{font-family:var(--f-body);font-size:11px;letter-spacing:.04em;color:var(--mute)}
+/* overdrive gauge (chapter 2) */
+#od{display:flex;align-items:center;gap:8px}
+#od .odl{font-weight:900;font-size:11px;letter-spacing:.12em;color:var(--brass);white-space:nowrap}
+#od .odbar{flex:1;height:7px;border:1px solid var(--line);background:var(--shade);padding:1px}
+#od .odbar i{display:block;height:100%;width:100%;background:var(--brass);transform-origin:left center;transform:scaleX(0)}
+#od.on .odl{color:var(--signal)}
+#od.on .odbar{border-color:var(--signal)}
+#od.on .odbar i{background:linear-gradient(90deg,var(--signal),var(--brass))}
+/* short phones: the title menu has two rows of stages */
+@media (max-height:700px){#ov-title{gap:10px;padding-block:14px}#ov-title h1{font-size:46px}#ov-title .how{font-size:12px;gap:2px}#ov-title .seg button{height:36px}#ov-title .go{height:50px}}
 .go{height:54px;border:0;border-radius:3px;background:var(--signal);color:var(--paper);font-weight:900;font-size:20px;letter-spacing:.3em;
   box-shadow:0 4px 0 #8f1626}
 .go:active{transform:translateY(3px);box-shadow:0 1px 0 #8f1626}
@@ -136,6 +149,7 @@ h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:32px;letter-s
           </button>
         </div>
       </div>
+      <div id="od" hidden><span class="odl">超載</span><div class="odbar"><i id="odFill"></i></div></div>
       <div id="bossbar" hidden><span id="bossName"></span><div class="bar"><i id="bossFill"></i></div></div>
     </div>
 
@@ -147,7 +161,7 @@ h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:32px;letter-s
     <div id="banner" hidden><span class="b1" id="ban1"></span><span class="b2" id="ban2"></span></div>
 
     <div id="ov-title" class="ov">
-      <span class="mark">VERTICAL STRIKE · 5 MISSIONS</span>
+      <span class="mark">VERTICAL STRIKE · 10 MISSIONS</span>
       <h1>蒼穹<em>戰翼</em></h1>
       <ul class="how">
         <li><b>拖曳</b>畫面移動戰機，子彈自動連發。</li>
@@ -159,9 +173,9 @@ h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:32px;letter-s
           <button data-v="0" aria-pressed="true">簡單</button><button data-v="1" aria-pressed="false">普通</button><button data-v="2" aria-pressed="false">困難</button>
         </div>
       </div>
-      <div class="opt"><span class="lbl">起始關卡 START FROM</span>
+      <div class="opt"><span class="lbl">起始關卡 START FROM　<small>第一篇 1–5・第二篇 6–10</small></span>
         <div class="seg" id="segStage">
-          <button data-v="0" aria-pressed="true">1</button><button data-v="1" aria-pressed="false">2</button><button data-v="2" aria-pressed="false">3</button><button data-v="3" aria-pressed="false">4</button><button data-v="4" aria-pressed="false">5</button>
+          <button data-v="0" aria-pressed="true">1</button><button data-v="1" aria-pressed="false">2</button><button data-v="2" aria-pressed="false">3</button><button data-v="3" aria-pressed="false">4</button><button data-v="4" aria-pressed="false">5</button><button data-v="5" aria-pressed="false">6</button><button data-v="6" aria-pressed="false">7</button><button data-v="7" aria-pressed="false">8</button><button data-v="8" aria-pressed="false">9</button><button data-v="9" aria-pressed="false">10</button>
         </div>
       </div>
       <button class="go" id="btnStart">出擊</button>
@@ -199,7 +213,7 @@ h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:32px;letter-s
     </div>
 
     <div id="ov-end" class="ov" hidden>
-      <h2>ALL CLEAR</h2><p class="sub">五大魔王全數擊破</p>
+      <h2>ALL CLEAR</h2><p class="sub">十大魔王全數擊破</p>
       <div class="rank" id="endRank">S</div>
       <dl class="tally"><dt>最終分數</dt><dd id="endScore">0</dd><dt>最高分數</dt><dd id="endHi">0</dd></dl>
       <button class="go" id="btnAgain">再玩一次</button>

@@ -1,0 +1,87 @@
+/* ================= chapter 2 stage scripts (stages 6–10): [seconds to wait, wave] ================= */
+WAVES.push(
+/* 6 冰原基地: ground turrets and tanks, splitting ice drones */
+[
+  [1.6,()=>{F.gnd('turret',90);F.gnd('turret',270)}],
+  [2.4,()=>F.col('shard',4,180,.5)],
+  [2.8,()=>{F.vee('grunt',7,180);F.car(1)}],
+  [3,()=>{F.gnd('tank',60,{dx:30});F.gnd('tank',300,{dx:-30})}],
+  [2.6,()=>F.rain('shard',5,.5)],
+  [3.2,()=>{F.gline('turret',3);F.side('sweeper',4,-1,110)}],
+  [3.6,()=>{F.one('gunship',180,{y1:130});F.car(-1)}],
+  [3.6,()=>{F.cross('weaver',5);F.gnd('tank',180)}],
+  [3.6,()=>{F.rain('shard',6,.4);F.gnd('turret',60);F.gnd('turret',300)}],
+  [4,()=>{F.one('bomber',180,{item:'B'});F.car(1)}],
+  [5,()=>{F.gline('tank',4);F.rain('diver',4,.6)}],
+  [4,()=>{F.side('sweeper',5,1,100);F.col('shard',4,90,.4);F.col('shard',4,270,.4)}],
+  [4.5,()=>{F.one('gunship',100);F.one('gunship',260);F.car(-1)}],
+  [5,()=>F.rain('shard',8,.3)]
+],
+/* 7 鋼鐵艦隊: destroyers and submarines on the sea */
+[
+  [1.6,()=>F.ship(110)],
+  [2.6,()=>{F.side('sweeper',4,-1,100);F.ship(270)}],
+  [3.2,()=>{F.subs(3);F.car(1)}],
+  [3.4,()=>F.cross('grunt',5)],
+  [3,()=>{F.ship(90);F.ship(270)}],
+  [3.6,()=>{F.rain('ace',3,.6);F.subs(2)}],
+  [3.8,()=>{F.one('bomber',180,{item:'P'});F.car(-1)}],
+  [4.5,()=>{F.side('sweeper',5,1,90);F.side('sweeper',5,-1,170)}],
+  [3.6,()=>{F.ship(180);F.subs(3)}],
+  [4.2,()=>{F.vee('weaver',7,180);F.car(1)}],
+  [4,()=>{F.ship(70);F.ship(290);F.rain('diver',5,.5)}],
+  [5,()=>{F.subs(4);F.rain('ace',3,.6)}],
+  [5,()=>{F.one('bomber',110,{item:'B'});F.one('bomber',250);F.car(-1)}],
+  [6,()=>F.rain('grunt',10,.25)]
+],
+/* 8 叢林遺跡: shielded jets, beam statues, swarms */
+[
+  [1.6,()=>F.swarm(12,120,60)],
+  [2.6,()=>{F.gnd('statue',90);F.gnd('statue',270)}],
+  [3,()=>{F.rain('shieldjet',3,.6);F.car(1)}],
+  [3.4,()=>F.swarm(14,240,70)],
+  [3,()=>{F.vee('weaver',7,180);F.gnd('statue',180)}],
+  [3.6,()=>{F.rain('shieldjet',4,.5);F.side('sweeper',4,1,120)}],
+  [3.8,()=>{F.one('spinner',180,{y1:140});F.car(-1)}],
+  [4,()=>{F.swarm(12,90,50);F.swarm(12,270,50)}],
+  [3.6,()=>{F.gline('statue',3);F.rain('diver',4,.5)}],
+  [4.4,()=>{F.one('bomber',180,{item:'B'});F.rain('shieldjet',3,.7)}],
+  [5,()=>{F.swarm(16,180,110);F.car(1)}],
+  [4.4,()=>{F.one('gunship',100);F.one('gunship',260);F.gnd('statue',180)}],
+  [5,()=>{F.rain('shieldjet',5,.4);F.rain('ace',2,.6)}],
+  [5,()=>F.swarm(20,180,120)]
+],
+/* 9 霓虹夜城: snipers, raiders from behind, gunship helicopters */
+[
+  [1.6,()=>F.rain('sniper',2,.8)],
+  [2.8,()=>F.rear('raider',4,.4)],
+  [3.2,()=>{F.one('copter',120);F.car(1)}],
+  [3.6,()=>{F.side('sweeper',5,-1,100);F.rain('sniper',2,.6)}],
+  [3.6,()=>F.rear('raider',5,.35)],
+  [3.4,()=>{F.one('copter',90);F.one('copter',270)}],
+  [4.4,()=>{F.vee('grunt',7,180);F.car(-1)}],
+  [3.6,()=>{F.rain('sniper',2,.6);F.rear('raider',4,.35)}],
+  [4.4,()=>{F.one('bomber',180,{item:'B'});F.side('sweeper',4,1,140)}],
+  [4.4,()=>{F.rain('ace',2,.7);F.car(1)}],
+  [4.4,()=>{F.rear('raider',6,.3);F.one('copter',180)}],
+  [5,()=>{F.rain('sniper',3,.5);F.cross('weaver',5)}],
+  [5,()=>{F.one('gunship',180);F.rear('raider',4,.4);F.car(-1)}],
+  [5.5,()=>F.rain('ace',3,.6)]
+],
+/* 10 虛空王座: void eyes and every chapter-2 threat at once */
+[
+  [1.6,()=>F.eyes(3,.7)],
+  [3.2,()=>{F.swarm(14,180,100);F.car(1)}],
+  [3.6,()=>{F.rain('shieldjet',2,.7);F.rear('raider',3,.4)}],
+  [4,()=>{F.rain('shard',6,.4);F.rain('sniper',2,.8)}],
+  [4.4,()=>{F.one('copter',180);F.eyes(2,.8);F.car(-1)}],
+  [4.4,()=>{F.one('spinner',90);F.one('spinner',270);F.swarm(12,180,60)}],
+  [5.5,()=>{F.one('bomber',180,{item:'B'});F.rear('raider',5,.35)}],
+  [5.5,()=>{F.rain('ace',3,.6);F.eyes(3,.6);F.car(1)}],
+  [5.5,()=>{F.rain('shieldjet',3,.6);F.rain('sniper',2,.6)}],
+  [5.5,()=>{F.one('gunship',180);F.swarm(16,180,110)}],
+  [5.5,()=>{F.rain('shard',6,.35);F.rear('raider',4,.35);F.car(-1)}],
+  [5.5,()=>{F.one('bomber',110,{item:'S'});F.one('bomber',250,{item:'P'})}],
+  [6,()=>F.eyes(5,.5)]
+]
+);

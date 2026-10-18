@@ -3,11 +3,30 @@ function render(){
   ctx.setTransform(SC*DPR,0,0,SC*DPR,0,0);
   ctx.save();
   if(G.shake>0&&!REDUCED)ctx.translate(rnd(-1,1)*G.shake*8,rnd(-1,1)*G.shake*8);
-  drawBG(G.stage);
+  drawBG(G.stage);drawGround();
   if(G.freeze>0){ctx.fillStyle='rgba(120,210,255,.16)';ctx.fillRect(0,0,W,H)}
-  drawBombs();drawHazards();drawEnemies();drawBoss();drawItems();drawPB();drawPlayer();drawEB();drawFx();
+  drawBombs();drawHazards();drawEnemies();drawBoss();drawItems();drawPB();drawZaps();drawPlayer();drawEB();drawMarks();drawFx();
   ctx.restore();
+  drawSub();
   if(G.flash>0){ctx.globalAlpha=Math.min(.8,G.flash*(REDUCED?.6:1.6));ctx.fillStyle=G.flashCol;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}
+}
+/* ground layer: sea/land targets and a ship boss sit under everything that flies */
+function drawGround(){
+  const B=G.boss;if(B&&B.i>=5&&B.ground)drawBoss2(B);
+  drawEnemies(true);
+  if(G.wind){ctx.strokeStyle='rgba(235,248,255,.35)';ctx.lineWidth=1.2;const s=Math.sign(G.wind);
+    for(let j=0;j<26;j++){const y=(j*61+G.t*40)%H,x=((j*137+G.t*s*260)%(W+80)+W+80)%(W+80)-40;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-s*18,y-2);ctx.stroke()}
+    ctx.fillStyle='rgba(235,248,255,.8)';ctx.font='900 12px '+CF;ctx.textAlign='center';ctx.fillText(s>0?'暴風雪 →':'← 暴風雪',W/2,H*.5)}
+}
+/* warning marks: chevrons where a raider will climb in from below, and icicle drop lines */
+function drawMarks(){
+  for(const m of marks){
+    ctx.globalAlpha=Math.sin(m.t*28)>0?1:.35;
+    if(m.kind==='rear'){ctx.fillStyle='#ff4a5c';for(let j=0;j<2;j++){const y=H-16-j*13;ctx.beginPath();ctx.moveTo(m.x-11,y+6);ctx.lineTo(m.x,y-5);ctx.lineTo(m.x+11,y+6);ctx.lineTo(m.x+11,y+11);ctx.lineTo(m.x,y);ctx.lineTo(m.x-11,y+11);ctx.closePath();ctx.fill()}}
+    else{ctx.strokeStyle='rgba(159,232,255,.45)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.x,60);ctx.lineTo(m.x,H);ctx.stroke();
+      ctx.fillStyle='#bfeaff';ctx.beginPath();ctx.moveTo(m.x-8,62);ctx.lineTo(m.x+8,62);ctx.lineTo(m.x,76);ctx.closePath();ctx.fill()}
+  }
+  ctx.globalAlpha=1;
 }
 let last=0;
 let errN=0;
@@ -53,7 +72,7 @@ window.addEventListener('blur',()=>{if(G.mode==='play'&&drag===null&&document.hi
 function boot(data){
   data=data||{};
   setDiff(clamp(data.diff!==undefined?data.diff:store.get('diff',0),0,2));
-  setStart(clamp(data.stage!==undefined?data.stage:store.get('start',0),0,4));
+  setStart(clamp(data.stage!==undefined?data.stage:store.get('start',0),0,9));
   sndUI();setMode('title');resize();
   if(window.ResizeObserver)new ResizeObserver(resize).observe(stageEl);
   try{document.fonts&&document.fonts.load('900 12px "Noto Sans TC"','火射追核電冰洞僚盾戰機護擋下啟動加入爆彈雷凍黑神砲貫穿蹤飛魔王暴走力升級')}catch(e){}

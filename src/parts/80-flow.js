@@ -9,8 +9,26 @@ function setMode(m){
   requestAnimationFrame(resize);
 }
 function banner(a,b,dur){$('ban1').textContent=a;$('ban2').textContent=b;$('banner').hidden=false;G.bannerT=dur}
+/* subtitles: boss lines (spoken) and one-time tips, shown one after another under the HUD */
+const SUBQ=[],TIPS=new Set();
+function say2(txt){SUBQ.push({txt,v:1,col:'#ffc2cc'})}
+function tip(txt,once){if(once){if(TIPS.has(txt))return;TIPS.add(txt)}SUBQ.push({txt,v:0,col:'#fff3c4'})}
+function updSub(dt){
+  if(G.subT>0){G.subT-=dt;if(G.subT>0)return}
+  const n=SUBQ.shift();
+  if(n){G.subTxt=n.txt;G.subCol=n.col;G.subT=n.v?3.6:3.4;if(n.v)AU.say(n.txt)}else G.subTxt='';
+}
+function drawSub(){
+  if(!G.subTxt||G.subT<=0)return;
+  const a=Math.min(1,G.subT*3,(3.6-G.subT)*6),y=G.boss&&G.boss.active?116:104;  /* under the HUD, away from the player */
+  ctx.globalAlpha=Math.max(0,a);ctx.font='900 14px '+CF;ctx.textAlign='center';ctx.textBaseline='middle';
+  const w=Math.min(W-24,ctx.measureText(G.subTxt).width+28);
+  ctx.fillStyle='rgba(6,9,24,.72)';ctx.fillRect(W/2-w/2,y-12,w,24);
+  ctx.fillStyle=G.subCol;ctx.fillText(G.subTxt,W/2,y+1,W-36);ctx.globalAlpha=1;
+}
 function resetField(){
   enemies=[];eb=[];pb=[];items=[];parts=[];hazards=[];floats=[];bolts=[];vortex=null;shock=null;LQ.length=0;
+  zaps=[];marks=[];SUBQ.length=0;G.subT=0;G.subTxt='';G.wind=0;
   G.boss=null;G.freeze=0;G.thunder=0;G.thT=0;G.flash=0;G.shake=0;G.bannerT=0;$('banner').hidden=true;$('warn').hidden=true;$('bossbar').hidden=true;
 }
 function startStage(i){
@@ -18,10 +36,12 @@ function startStage(i){
   P.alive=true;P.x=W/2;P.y=H-90;P.inv=2.5;P.fireT=0;P.bank=0;wingPos[0].x=P.x-27;wingPos[1].x=P.x+27;wingPos[0].y=wingPos[1].y=P.y+10;
   $('stgLbl').textContent='STAGE '+(i+1);$('stgName').textContent=STAGES[i].name;
   banner('STAGE '+(i+1),STAGES[i].name,2.4);AU.play(i,false);G.hudDirty=true;setMode('play');
+  P.od=0;$('od').hidden=i<5;odShown=-1;
+  if(i===5){tip('第二篇：收集獎牌集滿「超載」量表，火力全開 8 秒',1);tip('新武器膠囊「鏈」：連鎖閃電，自動跳向附近敵機',1)}
 }
 function startGame(i){
   G.score=0;G.lives=[5,3,3][G.diff];G.extend=150000;carrierN=0;G.killN=0;
-  P.wType=0;P.wLv=Math.min(4,1+i);P.wing=i>=2?1:0;P.shield=false;
+  P.wType=0;P.wLv=Math.min(4,1+i);P.wing=i>=5?2:i>=2?1:0;P.shield=false;P.odg=0;
   bombs[0]=i?2:1;bombs[1]=bombs[2]=bombs[3]=1;
   startStage(i);
 }
@@ -37,15 +57,17 @@ function saveHi(){store.set('hi',Math.floor(G.hi))}
 function gameOver(){
   AU.stop();saveHi();$('overScore').textContent=pad7(G.score);$('overHi').textContent=pad7(G.hi);setMode('over');
 }
-function toTitle(){AU.stop();AU.resume();saveHi();resetField();G.stage=0;P.alive=true;P.wLv=1;P.wType=0;P.wing=0;P.shield=false;P.inv=0;setMode('title')}
+function toTitle(){AU.stop();AU.resume();saveHi();resetField();G.stage=0;P.alive=true;P.wLv=1;P.wType=0;P.wing=0;P.shield=false;P.inv=0;P.od=0;P.odg=0;$('od').hidden=true;setMode('title')}
+/* end-of-game rank thresholds (score at the end of stage 10) */
+const RANK=[3000000,2200000,1400000];
 function stageClear(){
   saveHi();
   const nb=bombs.reduce((a,b)=>a+b,0),lb=G.lives*5000,bb=nb*2000;addScore(lb+bb);saveHi();
-  if(G.stage>=4){
-    const s=G.score;$('endRank').textContent=s>=900000?'S':s>=600000?'A':s>=350000?'B':'C';
+  if(G.stage>=9){
+    const s=G.score;$('endRank').textContent=s>=RANK[0]?'S':s>=RANK[1]?'A':s>=RANK[2]?'B':'C';
     $('endScore').textContent=pad7(s);$('endHi').textContent=pad7(G.hi);AU.extend();setMode('end');return;
   }
-  $('clearName').textContent=STAGES[G.stage].boss+' 擊破';
+  $('clearName').textContent=STAGES[G.stage].boss+' 擊破'+(G.stage===4?'・第二篇開啟':'');
   $('tBoss').textContent='+'+(G.bossBonus||0);$('tLife').textContent=G.lives+' × 5000';$('tBomb').textContent=nb+' × 2000';$('tTotal').textContent=pad7(G.score);
   AU.power();setMode('clear');
 }
@@ -64,8 +86,17 @@ function updHUD(){
   const B=G.boss,show=!!(B&&B.active&&B.dying<=0);$('bossbar').hidden=!show;
   if(show){$('bossName').textContent=STAGES[B.i].boss;$('bossFill').style.transform='scaleX('+Math.max(0,B.hp/B.mhp).toFixed(3)+')'}
 }
+let odShown=-1;
+function updOD(){
+  if(G.stage<5)return;
+  const v=P.od>0?P.od/8:P.odg/100,r=Math.round(v*200)+(P.od>0?1000:0);
+  if(r!==odShown){odShown=r;$('odFill').style.transform='scaleX('+((r%1000)/200)+')';$('od').classList.toggle('on',P.od>0)}
+}
 function update(dt){
-  G.t+=dt;scroll+=dt*(70+G.stage*12);
+  G.t+=dt;scroll+=dt*SSPD(G.stage);
+  for(let i=zaps.length-1;i>=0;i--){zaps[i].l-=dt;if(zaps[i].l<=0)zaps.splice(i,1)}
+  if(!(G.freeze>0))for(let i=marks.length-1;i>=0;i--){marks[i].t+=dt;if(marks[i].t>marks[i].life)marks.splice(i,1)}  /* paused with the spawns they announce */
+  updSub(dt);updOD();
   if(G.freeze>0)G.freeze-=dt;
   if(G.bannerT>0){G.bannerT-=dt;if(G.bannerT<=0)$('banner').hidden=true}
   G.phaseT+=dt;

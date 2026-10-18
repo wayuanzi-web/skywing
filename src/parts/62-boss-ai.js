@@ -2,11 +2,13 @@
 let BDT=0;
 function ev(B,k,per,fn){if(B.tm[k]===undefined)B.tm[k]=per*.6;B.tm[k]-=BDT;if(B.tm[k]<=0){B.tm[k]+=per*DIFF[G.diff].rate;fn()}}
 function spawnBoss(){
+  if(G.stage>=5){spawnBoss2();return}
   const d=BDEF[G.stage],hp=d.hp*DIFF[G.diff].hp;
   G.boss={i:G.stage,x:W/2,y:-80,ty:d.ty,hp,mhp:hp,hw:d.hw,hh:d.hh,t:0,ph:0,pause:0,active:false,dying:0,flash:0,a:0,tm:{},dir:1,gone:false};
 }
 function hurtBoss(d,quiet){
   const B=G.boss;if(!B||!B.active||B.dying>0)return;
+  if(B.i>=5){hurtBoss2(B,d,quiet);return}
   B.hp-=d;B.flash=.05;G.hudDirty=true;if(!quiet&&Math.random()<.2)AU.hit();
   if(B.hp<=0){B.hp=0;killBoss();return}
   const n=B.i>=3?3:2,ph=Math.min(n-1,Math.floor((1-B.hp/B.mhp)*n));
@@ -17,7 +19,8 @@ function hurtBoss(d,quiet){
   }
 }
 function killBoss(){
-  const B=G.boss;B.dying=2.6;B.gone=true;B.tm={};clearBullets(true);hazards.length=0;LQ.length=0;
+  const B=G.boss;B.dying=B.i===9?3.8:2.6;B.gone=true;B.tm={};clearBullets(true);hazards.length=0;LQ.length=0;
+  if(B.i>=5){G.wind=0;marks.length=0;SUBQ.length=0;G.subT=0;say2(VOICE[B.i-5].out);if(!B.hw){B.hw=B.hh=26}}
   for(const e of enemies.slice())killEnemy(e);
   G.phase='bossdead';G.phaseT=0;AU.stop();P.inv=Math.max(P.inv,4);
 }
@@ -34,12 +37,13 @@ function updBoss(dt){
       for(let j=0;j<5;j++)boom(B.x+rnd(-B.hw,B.hw),B.y+rnd(-B.hh,B.hh),true);
       ringFx(B.x,B.y,220,'#ffffff',.9,8);G.flash=.6;G.flashCol='#ffffff';G.shake=.9;
       addScore(20000*(B.i+1));medals(B.x,B.y,24);
-      if(B.i<4){dropItem(B.x-30,B.y,'P',(Math.random()*3)|0);dropItem(B.x+30,B.y,'B',(Math.random()*4)|0);if(B.i===1||B.i===3)dropItem(B.x,B.y+20,'U')}
+      if(B.i<9){dropItem(B.x-30,B.y,'P',(Math.random()*WN())|0);dropItem(B.x+30,B.y,'B',(Math.random()*4)|0);if(B.i===1||B.i===3||B.i===6||B.i===8)dropItem(B.x,B.y+20,'U')}
       G.bossBonus=20000*(B.i+1);G.boss=null;G.hudDirty=true;try{navigator.vibrate&&navigator.vibrate([80,40,160])}catch(e){}
     }
     return;
   }
   if(G.freeze>0)return;
+  if(B.i>=5){updBoss2(B,dt);return}
   B.t+=dt;
   if(!B.active){B.y+=70*dt;if(B.y>=B.ty){B.active=true;B.t=0;G.hudDirty=true}return}
   if(B.pause>0){B.pause-=dt;return}
@@ -100,7 +104,9 @@ function updBoss(dt){
   if(P.alive&&Math.abs(P.x-B.x)<B.hw*.8&&Math.abs(P.y-B.y)<B.hh*.8)hitPlayer();
 }
 function drawBoss(){
-  const B=G.boss;if(!B)return;const s=BSPR[B.i];
+  const B=G.boss;if(!B)return;
+  if(B.i>=5){if(!B.ground)drawBoss2(B);return}
+  const s=BSPR[B.i];
   ctx.save();ctx.translate(B.x,B.y);if(B.dying>0)ctx.translate(rnd(-3,3),rnd(-3,3));
   if(B.i===4){for(let j=0;j<6;j++){const a=G.t*1.2+j*TAU/6;ctx.fillStyle=j%2?'#b98cff':'#ff4a5c';ctx.beginPath();ctx.arc(Math.cos(a)*70,Math.sin(a)*52,4.5,0,TAU);ctx.fill()}}
   if(B.i===0)ctx.rotate(Math.PI);

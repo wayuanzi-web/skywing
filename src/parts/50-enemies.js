@@ -4,10 +4,14 @@ const ED={
   ace:{hp:10,r:11,sc:400},carrier:{hp:11,r:18,sc:500},gunship:{hp:28,r:17,sc:1000},bomber:{hp:75,r:27,sc:3000},
   mine:{hp:8,r:11,sc:150},spinner:{hp:24,r:14,sc:800}
 };
+const EX={};   /* chapter 2 enemy behaviours: EX[k] = {upd(e,dt,canFire), draw(e), init?(e), onKill?(e)} */
+function hpScale(){return DIFF[G.diff].hp*(1+Math.min(G.stage,4)*.2+Math.max(0,G.stage-4)*.06)}
 function spawn(k,x,y,p){
-  const d=ED[k],hp=d.hp*DIFF[G.diff].hp*(1+G.stage*.2);
+  const d=ED[k],sc=hpScale(),hp=d.hp*sc;
   const e={k,x,y,hp,mhp:hp,r:d.r,sc:d.sc,t:0,flash:0,fireT:rnd(.5,1.5),st:0,rot:Math.PI,p:p||{},gone:false};
   if(e.p.x0===undefined)e.p.x0=x;if(e.p.ph===undefined)e.p.ph=rnd(TAU);
+  if(d.ground)e.ground=true;if(d.hw){e.hw=d.hw;e.hh=d.hh}if(d.sh)e.sh=e.shm=d.sh*sc;
+  if(EX[k]&&EX[k].init)EX[k].init(e);
   enemies.push(e);return e;
 }
 function hurt(e,d,quiet){
@@ -16,10 +20,11 @@ function hurt(e,d,quiet){
 }
 function killEnemy(e){
   e.gone=true;const i=enemies.indexOf(e);if(i>=0)enemies.splice(i,1);
-  const big=e.k==='bomber'||e.k==='gunship'||e.k==='spinner';
-  boom(e.x,e.y,big);addScore(e.sc);
+  const big=e.k==='bomber'||e.k==='gunship'||e.k==='spinner'||!!ED[e.k].big;
+  boom(e.x,e.y,big);addScore(e.sc);odAdd(big?3:.4);
+  if(EX[e.k]&&EX[e.k].onKill&&G.mode==='play'&&!(G.boss&&G.boss.gone))EX[e.k].onKill(e);
   /* every 16th kill also drops a weapon capsule, so upgrades keep coming even if a supply plane escapes */
-  if(G.mode==='play'&&e.k!=='carrier'&&++G.killN%16===0)dropItem(e.x,e.y,'P',(Math.random()*3)|0);
+  if(G.mode==='play'&&e.k!=='carrier'&&++G.killN%16===0)dropItem(e.x,e.y,'P',(Math.random()*WN())|0);
   if(e.k==='carrier')carrierDrop(e.x,e.y);
   else if(e.k==='bomber'){medals(e.x,e.y,8);if(e.p.item)dropItem(e.x,e.y,e.p.item,(Math.random()*4)|0)}
   else if(big)medals(e.x,e.y,4);
@@ -28,7 +33,7 @@ function killEnemy(e){
 }
 function updEnemies(dt){
   if(G.freeze>0){for(const e of enemies)e.flash=Math.max(0,e.flash-dt);return}
-  const rate=DIFF[G.diff].rate,sg=G.stage,demo=G.mode!=='play';
+  const rate=DIFF[G.diff].rate,sg=Math.min(G.stage,5),demo=G.mode!=='play';
   for(let i=enemies.length-1;i>=0;i--){
     const e=enemies[i],p=e.p;e.t+=dt;e.flash=Math.max(0,e.flash-dt);e.fireT-=dt;
     const canFire=!demo&&e.y>20&&e.y<H*.72&&P.alive;
@@ -81,13 +86,18 @@ function updEnemies(dt){
         e.rot+=dt*2.4;
         if(canFire&&e.st===1&&e.fireT<=0){e.fireT=.2*rate;shoot(e.x,e.y,e.rot,150,3);shoot(e.x,e.y,e.rot+Math.PI,150,3)}
         break;
+      default:
+        if(EX[e.k])EX[e.k].upd(e,dt,canFire);
     }
-    if(e.y>H+50||e.y<-90||(e.t>1.2&&(e.x<-70||e.x>W+70))){e.gone=true;enemies.splice(i,1);continue}
-    if(P.alive&&!demo){const dx=e.x-P.x,dy=e.y-P.y,rr=e.r*.7+P.r+3;if(dx*dx+dy*dy<rr*rr){hitPlayer();hurt(e,25)}}
+    if(e.gone)continue;   /* an update may remove the enemy itself */
+    if(e.y>H+50+(e.hh||0)||e.y<-90-(e.hh||0)||(e.t>1.2&&(e.x<-70||e.x>W+70))){e.gone=true;enemies.splice(i,1);continue}
+    if(P.alive&&!demo&&!e.ground&&!e.under){const dx=e.x-P.x,dy=e.y-P.y,rr=e.r*.7+P.r+3;if(dx*dx+dy*dy<rr*rr){hitPlayer();hurt(e,25)}}
   }
 }
-function drawEnemies(){
+function drawEnemies(ground){
   for(const e of enemies){
+    if(!!e.ground!==!!ground)continue;
+    if(EX[e.k]){EX[e.k].draw(e);if(G.freeze>0&&!e.under){ctx.fillStyle='rgba(143,233,255,.38)';ctx.beginPath();ctx.arc(e.x,e.y,(e.hh||e.r)+3,0,TAU);ctx.fill()}continue}
     if(e.k==='carrier'){ctx.strokeStyle='rgba(244,183,64,'+(.35+Math.sin(e.t*9)*.3)+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,25,0,TAU);ctx.stroke()}
     spr(ESPR[e.k],e.x,e.y,e.rot,1,e.flash>0);
     if(G.freeze>0){ctx.fillStyle='rgba(143,233,255,.38)';ctx.beginPath();ctx.arc(e.x,e.y,e.r+3,0,TAU);ctx.fill()}

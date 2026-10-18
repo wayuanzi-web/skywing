@@ -14,7 +14,8 @@ function floatTxt(x,y,txt,col){floats.push({x:clamp(x,40,W-40),y,txt,col:col||'#
 function addScore(n){
   if(G.mode!=='play')return;
   G.score+=n;if(G.score>G.hi)G.hi=G.score;G.hudDirty=true;
-  if(G.score>=G.extend){G.extend+=300000;G.lives++;AU.extend();floatTxt(P.x,P.y-34,'戰機 +1','#7dff9a')}
+  /* extra life at 150k, then every 300k; after 1.05M every 600k (ten stages score far more than five) */
+  if(G.score>=G.extend){G.extend+=G.extend>=1050000?600000:300000;if(G.lives<9){G.lives++;AU.extend();floatTxt(P.x,P.y-34,'戰機 +1','#7dff9a')}}
 }
 /* enemy bullets */
 function shoot(x,y,a,sp,k,r){
@@ -35,16 +36,26 @@ function updEB(dt){
     if(!frozen){b.t+=dt;b.x+=b.vx*dt;b.y+=b.vy*dt;
       if(b.g)b.vy+=b.g*dt;
       if(b.k===4&&b.t>.95){ringB(b.x,b.y,6,150,rnd(TAU),0);eb.splice(i,1);continue}
+      if(b.k===8&&b.t>.9){for(let j=0;j<4;j++)shoot(b.x,b.y,Math.PI/4+j*Math.PI/2,140,5);eb.splice(i,1);continue} /* ice crystal splits */
+      if(b.k===6&&b.t<1.6&&P.alive){ /* missile: steers toward the player for 1.6 s */
+        const ca=Math.atan2(b.vy,b.vx),sp=Math.min(260,Math.hypot(b.vx,b.vy)+60*dt);let da=aimA(b.x,b.y)-ca;
+        while(da>Math.PI)da-=TAU;while(da<-Math.PI)da+=TAU;const na=ca+clamp(da,-2.3*dt,2.3*dt);b.vx=Math.cos(na)*sp;b.vy=Math.sin(na)*sp;
+        if(parts.length<420&&Math.random()<.4)parts.push({x:b.x,y:b.y,vx:0,vy:0,l:.3,m:.3,s:2.5,c:'#ffd0a0',k:0});
+      }
+      if(G.wind&&b.k===5)b.vx+=G.wind*dt;
     }
     if(b.x<-24||b.x>W+24||b.y<-30||b.y>H+24){eb.splice(i,1);continue}
     if(P.alive&&P.inv<=0){const dx=b.x-P.x,dy=b.y-P.y,rr=b.r*.62+P.r;if(dx*dx+dy*dy<rr*rr){eb.splice(i,1);hitPlayer();break}} /* hitPlayer clears bullets: stop iterating */
   }
 }
-const EBC=[['#ff4f86','#ffe3ec'],['#ff3d6e','#fff0f4'],['#ff7a2a','#ffe9a0'],['#b47aff','#f1e6ff'],['#ff3c5a','#ffd0d0']],EBO='#2a0618';
+const EBC=[['#ff4f86','#ffe3ec'],['#ff3d6e','#fff0f4'],['#ff7a2a','#ffe9a0'],['#b47aff','#f1e6ff'],['#ff3c5a','#ffd0d0'],
+  ['#6fd0ff','#f2fcff'],['#ff9f1a','#fff4d0'],['#bfeaff','#ffffff'],['#9fe0ff','#ffffff'],['#a8987a','#e8dcc0']],EBO='#2a0618';
+/* k: 0 pink 1 dart 2 big orange 3 violet 4 bursting 5 ice shard 6 missile 7 icicle 8 splitting crystal 9 stone slab */
 function drawEB(){
   for(const b of eb){
     const c=EBC[b.k]||EBC[0];
-    if(b.k===1){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillStyle=EBO;ctx.beginPath();ctx.ellipse(0,0,b.r*2.2+1.6,b.r+1.6,0,0,TAU);ctx.fill();
+    if(b.k===9){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.t*3);ctx.fillStyle=EBO;ctx.fillRect(-b.r-2,-b.r*.6-2,b.r*2+4,b.r*1.2+4);ctx.fillStyle=c[0];ctx.fillRect(-b.r,-b.r*.6,b.r*2,b.r*1.2);ctx.fillStyle=c[1];ctx.fillRect(-b.r*.6,-2,b.r*1.2,4);ctx.restore();continue}
+    if(b.k===1||b.k===6||b.k===7){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.fillStyle=EBO;ctx.beginPath();ctx.ellipse(0,0,b.r*2.2+1.6,b.r+1.6,0,0,TAU);ctx.fill();
       ctx.fillStyle=c[0];ctx.beginPath();ctx.ellipse(0,0,b.r*2.2,b.r,0,0,TAU);ctx.fill();
       ctx.fillStyle=c[1];ctx.beginPath();ctx.ellipse(0,0,b.r*1.3,b.r*.45,0,0,TAU);ctx.fill();ctx.restore();continue}
     ctx.fillStyle=EBO;ctx.beginPath();ctx.arc(b.x,b.y,b.r+2.8,0,TAU);ctx.fill();
@@ -58,11 +69,11 @@ function dropItem(x,y,k,sub){items.push({x:clamp(x,20,W-20),y,vx:rnd()<.5?-42:42
 function carrierDrop(x,y){
   let k=['P','B','P','W','P','B','P','S'][carrierN++%8];
   if(k==='W'&&P.wing>=2)k='P';if(k==='S'&&P.shield)k='B';
-  dropItem(x,y,k,k==='B'?(Math.random()*4)|0:(Math.random()*3)|0);
+  dropItem(x,y,k,k==='B'?(Math.random()*4)|0:(Math.random()*WN())|0);
 }
 function medals(x,y,n){for(let i=0;i<n&&items.length<90;i++)items.push({x:x+rnd(-14,14),y:y+rnd(-10,10),vx:rnd(-30,30),vy:rnd(-70,-10),k:'M',t:0,sub:0})}
 function pickup(it){
-  if(it.k==='M'){addScore(500);AU.tone(1320,.05,'square',.04);return}
+  if(it.k==='M'){addScore(500);AU.tone(1320,.05,'square',.04);odAdd(1);return}
   if(it.k==='P'){
     const ty=capType(it);P.wType=ty;
     if(P.wLv<5){P.wLv++;floatTxt(it.x,it.y,WEAPONS[ty].name+(P.wLv>=5?' MAX':' LV'+P.wLv),WEAPONS[ty].col)}
@@ -71,10 +82,10 @@ function pickup(it){
   }else if(it.k==='B'){bombs[it.sub]=Math.min(5,bombs[it.sub]+1);floatTxt(it.x,it.y,BOMBS[it.sub].name+' +1',BOMBS[it.sub].col);AU.pick()}
   else if(it.k==='W'){if(P.wing<2){P.wing++;floatTxt(it.x,it.y,'僚機加入','#f4b740')}else{addScore(3000);floatTxt(it.x,it.y,'+3000','#f4b740')}AU.power()}
   else if(it.k==='S'){P.shield=true;floatTxt(it.x,it.y,'護盾啟動','#62e2ff');AU.power()}
-  else if(it.k==='U'){G.lives++;floatTxt(it.x,it.y,'戰機 +1','#7dff9a');AU.extend()}
+  else if(it.k==='U'){if(G.lives<9){G.lives++;floatTxt(it.x,it.y,'戰機 +1','#7dff9a')}else{addScore(20000);floatTxt(it.x,it.y,'+20000','#7dff9a')}AU.extend()}
   G.hudDirty=true;
 }
-function capType(it){return(it.sub+((it.t/2.2)|0))%3}
+function capType(it){return(it.sub+((it.t/2.2)|0))%WN()}
 function updItems(dt){
   for(let i=items.length-1;i>=0;i--){
     const it=items[i];it.t+=dt;
@@ -98,7 +109,7 @@ function drawItems(){
     if(it.k==='M'){const w=5*Math.abs(Math.cos(it.t*6))+1.5;ctx.fillStyle='#f4b740';ctx.beginPath();ctx.ellipse(it.x,it.y,w,6,0,0,TAU);ctx.fill();ctx.fillStyle='#fff3c4';ctx.fillRect(it.x-.8,it.y-3,1.6,6);continue}
     const pul=1+Math.sin(it.t*8)*.07;ctx.save();ctx.translate(it.x,it.y);ctx.scale(pul,pul);
     let col='#fff',ch='';
-    if(it.k==='P'){const ty=capType(it);col=WEAPONS[ty].col;ch='火射追'[ty]}
+    if(it.k==='P'){const ty=capType(it);col=WEAPONS[ty].col;ch='火射追鏈'[ty]}
     else if(it.k==='B'){col=BOMBS[it.sub].col;ch='核電冰洞'[it.sub]}
     else if(it.k==='W'){col='#f4b740';ch='僚'}else if(it.k==='S'){col='#62e2ff';ch='盾'}else{col='#7dff9a';ch='1UP'}
     ctx.fillStyle='#0a0f24';ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();

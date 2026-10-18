@@ -18,22 +18,33 @@ const STAGES=[
   {name:'沙漠風暴',boss:'沙暴毒蠍',sky:['#7a4a1e','#c98a3c'],deco:'#a8702c',tint:'#c2a070'},
   {name:'雷雲亂流',boss:'雷雲母艦',sky:['#1c2140','#4a4f86'],deco:'#6c72ad',tint:'#9a9fd0'},
   {name:'熔岩要塞',boss:'熔核機甲',sky:['#1e0a0a','#5c1a10'],deco:'#ff6a2a',tint:'#c97a60'},
-  {name:'大氣層外',boss:'大魔王・終焉星核',sky:['#04050f','#120a2e'],deco:'#b98cff',tint:'#a48ad8'}
+  {name:'大氣層外',boss:'大魔王・終焉星核',sky:['#04050f','#120a2e'],deco:'#b98cff',tint:'#a48ad8'},
+  /* chapter 2: spd = background scroll speed (chapter 1 uses 70 + 12 per stage) */
+  {name:'冰原基地',boss:'寒霜堡壘',sky:['#22506f','#5d8fb0'],spd:120},
+  {name:'鋼鐵艦隊',boss:'超級航艦・怒濤號',sky:['#0a2c40','#165468'],spd:110},
+  {name:'叢林遺跡',boss:'遺跡守護神',sky:['#0f2d1a','#2a5428'],spd:112},
+  {name:'霓虹夜城',boss:'雙子王牌・赤影與蒼影',sky:['#08061a','#1b1036'],spd:170},
+  {name:'虛空王座',boss:'虛空之王',sky:['#04010b','#1c0533'],spd:92}
 ];
+const SSPD=i=>STAGES[i].spd||70+i*12;   /* background scroll px/s */
+const GS=()=>SSPD(G.stage)*.5;          /* ground layer (parallax 0.5) */
+const CH2=()=>G.stage>=5;                /* chapter 2: overdrive gauge + chain lightning */
 const WEAPONS=[
   {name:'火神砲',col:'#ff6b5e'},
   {name:'貫穿雷射',col:'#62e2ff'},
-  {name:'追蹤飛彈',col:'#7dff9a'}
+  {name:'追蹤飛彈',col:'#7dff9a'},
+  {name:'連鎖閃電',col:'#c79bff'}
 ];
+const WN=()=>CH2()?4:3;                  /* weapon types a capsule can turn into */
 const BOMBS=[{name:'核爆彈',col:'#ff7a3c'},{name:'雷電彈',col:'#ffe45c'},{name:'冰凍彈',col:'#8fe9ff'},{name:'黑洞彈',col:'#b98cff'}];
 const DIFF=[{spd:.78,rate:1.35,hp:.85},{spd:1,rate:1,hp:1},{spd:1.22,rate:.78,hp:1.2}];
 
 const G={mode:'title',stage:0,diff:0,startStage:0,t:0,score:0,hi:store.get('hi',0),lives:3,
   shake:0,flash:0,flashCol:'#fff',freeze:0,phase:'waves',phaseT:0,waveI:0,waveT:0,boss:null,
-  extend:150000,killN:0,sound:store.get('snd',true),hudDirty:true,demoT:0};
-const P={x:W/2,y:520,r:4,alive:true,inv:0,dead:0,wType:0,wLv:1,wing:0,shield:false,fireT:0,missT:0,wingT:0,bank:0,vx:0};
+  extend:150000,killN:0,wind:0,subT:0,subTxt:'',subCol:'#fff',sound:store.get('snd',true),hudDirty:true,demoT:0};
+const P={x:W/2,y:520,r:4,alive:true,inv:0,dead:0,wType:0,wLv:1,wing:0,shield:false,fireT:0,missT:0,wingT:0,bank:0,vx:0,od:0,odg:0};
 const bombs=[1,1,1,1];
-let enemies=[],eb=[],pb=[],items=[],parts=[],hazards=[],floats=[],bolts=[],vortex=null,shock=null;
+let enemies=[],eb=[],pb=[],items=[],parts=[],hazards=[],floats=[],bolts=[],vortex=null,shock=null,zaps=[],marks=[];
 
 function resize(){
   const sw=stageEl.clientWidth,sh=stageEl.clientHeight;if(!sw||!sh)return;

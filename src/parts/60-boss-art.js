@@ -44,12 +44,13 @@ const BSPR=[
 const BDEF=[{hp:1300,hw:64,hh:26,ty:112},{hp:1900,hw:50,hh:34,ty:118},{hp:2500,hw:72,hh:24,ty:108},{hp:3000,hw:46,hh:42,ty:124},{hp:4400,hw:56,hh:44,ty:126}];
 
 /* beams: telegraph first (warn), then burn (fire). Origin may ride the boss. */
-function beam(o){hazards.push(Object.assign({x:0,y:0,a:Math.PI/2,w:18,len:900,warn:.9,fire:.7,t:0,rotv:0,ride:false,ox:0,oy:0,col:'#ffe45c',snd:false},o))}
+function beam(o){hazards.push(Object.assign({x:0,y:0,a:Math.PI/2,w:18,len:900,warn:.9,fire:.7,t:0,rotv:0,ride:false,src:null,ox:0,oy:0,col:'#ffe45c',snd:false},o))}
 function updHazards(dt){
   if(G.freeze>0)return;const B=G.boss;
   for(let i=hazards.length-1;i>=0;i--){
     const h=hazards[i];h.t+=dt;
     if(h.ride){if(!B||B.dying){hazards.splice(i,1);continue}h.x=B.x+h.ox;h.y=B.y+h.oy}
+    if(h.src){if(h.src.gone||h.src.dead){hazards.splice(i,1);continue}h.x=h.src.x+h.ox;h.y=h.src.y+h.oy}  /* follows the enemy that fires it; dies with it */
     if(h.t>=h.warn){
       h.a+=h.rotv*dt;
       if(!h.snd){h.snd=true;AU.laser();G.shake=Math.max(G.shake,.15)}

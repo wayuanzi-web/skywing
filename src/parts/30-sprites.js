@@ -76,6 +76,7 @@ let scroll=0;
 function drawBG(si){
   const S=STAGES[si],gr=ctx.createLinearGradient(0,0,0,H);gr.addColorStop(0,S.sky[0]);gr.addColorStop(1,S.sky[1]);
   ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  if(si===8)drawRoads();
   for(const it of BG[si]){
     const y=((it.y+scroll*it.l)%TH+TH)%TH-120,x=it.x,s=it.s;if(y>H+130)continue;
     switch(it.k){
@@ -95,6 +96,7 @@ function drawBG(si){
       case'neb':{const n=ctx.createRadialGradient(x,y,0,x,y,s);n.addColorStop(0,it.q>.5?'rgba(150,90,255,.2)':'rgba(60,140,255,.18)');n.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=n;ctx.fillRect(x-s,y-s,s*2,s*2);break}
       case'planet':{const n=ctx.createRadialGradient(x-s*.3,y-s*.3,s*.1,x,y,s);n.addColorStop(0,'#c9a2ff');n.addColorStop(.7,'#4a2a8a');n.addColorStop(1,'#1a0c3a');ctx.fillStyle=n;ctx.beginPath();ctx.arc(x,y,s,0,TAU);ctx.fill();
         ctx.strokeStyle='rgba(220,200,255,.4)';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x,y,s*1.6,s*.35,-.4,0,TAU);ctx.stroke();break}
+      default:drawBG2(it,x,y,s);
     }
   }
 }

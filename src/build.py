@@ -34,14 +34,14 @@ doc = f'''<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0a0f24">
 <meta name="color-scheme" content="dark">
-<meta name="description" content="直向飛機射擊遊戲：五關五魔王、三種可升級武器、四種炸彈。手機拖曳就能玩。">
+<meta name="description" content="直向飛機射擊遊戲：十關十魔王、四種可升級武器、四種炸彈。手機拖曳就能玩。">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="蒼穹戰翼">
 <meta property="og:type" content="website">
 <meta property="og:title" content="蒼穹戰翼">
-<meta property="og:description" content="五關五魔王的飛機射擊遊戲，手機拖曳就能玩。">
+<meta property="og:description" content="十關十魔王的飛機射擊遊戲，手機拖曳就能玩。">
 <meta property="og:url" content="{BASE}">
 <meta property="og:image" content="{BASE}og.png">
 <meta property="og:image:width" content="1200">

@@ -9,8 +9,8 @@ function useBomb(i){
   if(i===0){ /* 核爆彈: instant screen wipe, heavy damage to everything */
     P.inv=Math.max(P.inv,2.6);G.flash=.5;G.flashCol='#fff3d6';G.shake=.8;shock={x:P.x,y:P.y,t:0};
     clearBullets(true);hazards.length=0;
-    for(const e of enemies.slice())hurt(e,45,true);
-    if(B&&B.active)hurtBoss(B.mhp*.07+70,true);
+    for(const e of enemies.slice())if(!e.under)hurt(e,45,true);
+    if(B&&B.active){if(B.parts&&B.body!==false)for(const q of B.parts)if(!q.dead)hurtPart(q,q.mhp*.22,true);hurtBoss(B.mhp*.07+70,true)}
   }else if(i===1){ /* 雷電彈: 2.6 s of lightning strikes — best single-target damage */
     P.inv=Math.max(P.inv,3);G.thunder=2.6;G.thT=0;
   }else if(i===2){ /* 冰凍彈: bullets shatter into medals, enemies frozen and take 1.5x damage */
@@ -30,9 +30,10 @@ function updBombs(dt){
   if(G.thunder>0){
     G.thunder-=dt;G.thT-=dt;
     if(G.thT<=0){
-      G.thT=.11;const live=enemies.filter(e=>e.y>0);
+      G.thT=.11;const live=enemies.filter(e=>e.y>0&&!e.under);
       const useBoss=B&&B.active&&B.dying<=0&&(live.length===0||Math.random()<.6);
-      if(useBoss){strike(B.x+rnd(-B.hw*.6,B.hw*.6),B.y);hurtBoss(11,true)}
+      if(useBoss&&B.parts){const tg=B.parts.filter(q=>!q.dead);if(B.body!==false)tg.push(B);const t=pick(tg);strike(t.x+(t===B?rnd(-B.hw*.6,B.hw*.6):0),t.y);if(t===B)hurtBoss(11,true);else hurtPart(t,11,true)}
+      else if(useBoss){strike(B.x+rnd(-B.hw*.6,B.hw*.6),B.y);hurtBoss(11,true)}
       else if(live.length){const e=pick(live);strike(e.x,e.y);hurt(e,14,true)}
       else if(eb.length){const b=pick(eb);strike(b.x,b.y)}
       else strike(rnd(30,W-30),rnd(80,H*.5));
@@ -49,9 +50,10 @@ function updBombs(dt){
     }
     for(const e of enemies.slice()){
       const dx=v.x-e.x,dy=v.y-e.y,d=Math.hypot(dx,dy)||1;
-      if(d<150){if(ED[e.k].hp<=12){e.x+=dx/d*110*dt;e.y+=dy/d*110*dt;e.p.x0+=dx/d*110*dt}hurt(e,36*dt,true)}
+      if(e.under)continue;
+      if(d<150){if(ED[e.k].hp<=12&&!e.ground){e.x+=dx/d*110*dt;e.y+=dy/d*110*dt;e.p.x0+=dx/d*110*dt}hurt(e,36*dt,true)}
     }
-    if(B&&B.active&&Math.hypot(v.x-B.x,v.y-B.y)<160)hurtBoss(36*dt,true);
+    if(B&&B.active&&!B.dying){if(B.parts)for(const q of B.parts)if(!q.dead&&Math.hypot(v.x-q.x,v.y-q.y)<160)hurtPart(q,36*dt,true);if(B.body!==false&&Math.hypot(v.x-B.x,v.y-B.y)<160)hurtBoss(36*dt,true)}
     if(parts.length<420){const a=rnd(TAU);parts.push({x:v.x+Math.cos(a)*120,y:v.y+Math.sin(a)*120,vx:-Math.cos(a)*240,vy:-Math.sin(a)*240,l:.45,m:.45,s:2.5,c:'#d9c2ff',k:0})}
     if(v.t>v.life){ringFx(v.x,v.y,100,'#b98cff',.5,5);boom(v.x,v.y,true);vortex=null}
   }

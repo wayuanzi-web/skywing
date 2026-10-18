@@ -1,5 +1,5 @@
 /* 蒼穹戰翼 service worker: newest page when online, cached copy when offline */
-const V='skywing-20261004200351',FONTS='skywing-fonts';
+const V='skywing-20261019070306',FONTS='skywing-fonts';
 const CORE=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{

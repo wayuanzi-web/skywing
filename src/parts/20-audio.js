@@ -43,13 +43,17 @@ const AU={
     else{this.tone(55,2.4,'sawtooth',.22,170);this.nz(2.2,.12,300,900)}
   },
   zap(){this.nz(.14,.3,6000,500);this.tone(1900,.1,'square',.05,200)},
+  chain(){if(!this.ctx)return;const t=this.ctx.currentTime;if(t-(this.lastZap||0)<.12)return;this.lastZap=t;this.nz(.07,.06,7000,1400);this.tone(2600,.05,'square',.018,700)},
+  od(){[392,523,659,784,1047,1319].forEach((f,i)=>this.tone(f,.13,'sawtooth',.07,0,i*.05));this.nz(.5,.14,4000,700)},
+  snipe(){this.tone(2100,.14,'square',.05,260)},
+  shieldHit(){if(!this.ctx)return;const t=this.ctx.currentTime;if(t-(this.lastSh||0)<.09)return;this.lastSh=t;this.tone(1500,.04,'triangle',.04,1900)},
   siren(){for(let i=0;i<6;i++){this.tone(560,.26,'sawtooth',.16,880,i*.52);this.tone(880,.26,'sawtooth',.16,560,i*.52+.26)}},
   say(txt){
     if(!G.sound)return;
     try{const u=new SpeechSynthesisUtterance(txt);u.lang='zh-TW';u.rate=1;u.pitch=.6;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}
   },
   play(stage,boss){
-    const b=this.bgm;b.root=[45,43,40,41,38][stage];b.bpm=[132,136,142,148,154][stage]+(boss?18:0);b.boss=!!boss;b.step=0;
+    const b=this.bgm;b.root=[45,43,40,41,38,44,42,39,37,36][stage];b.bpm=[132,136,142,148,154,138,144,140,162,150][stage]+(boss?18:0);b.boss=!!boss;b.ch2=stage>=5;b.step=0;
     b.next=this.ctx?this.ctx.currentTime+.08:0;b.on=true;
   },
   stop(){this.bgm.on=false},
@@ -60,7 +64,7 @@ const AU={
     while(b.next<c.currentTime+.18){
       const s=b.step,t0=b.next-c.currentTime,bar=(s>>4)&3,r=b.root+(b.boss?[0,1,0,-2]:[0,-4,-7,-2])[bar];
       if(s%2===0)this.tone(mf(r+((s%8===6)?12:0)),spb*1.7,'triangle',.2,0,t0,this.music);
-      const arp=(b.boss?[0,12,6,12,7,12,3,12]:[0,7,12,15,12,7,3,7])[s%8];
+      const arp=(b.ch2?(b.boss?[0,12,10,12,7,12,13,12]:[0,7,10,14,12,10,7,3]):(b.boss?[0,12,6,12,7,12,3,12]:[0,7,12,15,12,7,3,7]))[s%8];
       this.tone(mf(r+24+arp),spb*.85,'square',.034,0,t0,this.music);
       if(s%4===2)this.nz(.035,.07,9000,0,t0,this.music);
       if(s%8===0||(b.boss&&s%8===5))this.tone(150,.11,'sine',.3,42,t0,this.music);

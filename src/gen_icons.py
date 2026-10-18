@@ -50,8 +50,8 @@ async def main():
             if 'TC' in ' '.join(f.getname()): return f
         return ImageFont.truetype(black, sz, index=0)
     d.text((70,118),'蒼穹',font=font(160),fill='#eef1ff'); d.text((70,288),'戰翼',font=font(160),fill='#62e2ff')
-    d.text((76,70),'VERTICAL STRIKE · 5 MISSIONS',font=font(30),fill='#f4b740')
-    d.text((76,520),'五關五魔王・手機拖曳就能玩',font=font(36),fill='#eef1ff')
+    d.text((76,70),'VERTICAL STRIKE · 10 MISSIONS',font=font(30),fill='#f4b740')
+    d.text((76,520),'十關十魔王・手機拖曳就能玩',font=font(36),fill='#eef1ff')
     og.save(OUT/'og.png', optimize=True)
     print('icons and og.png written to', OUT)
 asyncio.run(main())

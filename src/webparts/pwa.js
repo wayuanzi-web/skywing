@@ -18,7 +18,7 @@ function tip(t){const p=$('appTip');p.textContent=t;p.hidden=false;clearTimeout(
    openExternalBrowser=1 makes LINE open the link in the phone's real browser, where installing works. */
 const shareUrl=location.origin+location.pathname+'?openExternalBrowser=1';
 $('btnShare').addEventListener('click',async()=>{
-  try{if(navigator.share){await navigator.share({title:'蒼穹戰翼',text:'來玩飛機射擊遊戲「蒼穹戰翼」，五關五魔王！',url:shareUrl});return}}
+  try{if(navigator.share){await navigator.share({title:'蒼穹戰翼',text:'來玩飛機射擊遊戲「蒼穹戰翼」，十關十魔王！',url:shareUrl});return}}
   catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(shareUrl);tip('已複製連結，貼給朋友就能玩。')}catch(e){tip(shareUrl)}
 });
